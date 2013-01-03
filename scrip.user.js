@@ -12,7 +12,8 @@
 	var url = 'http://troii.com/zeroclipboard/ClipboardInterface.html'; // URL pointing to ClipboardInterface.html
 	var el = document.createElement("iframe");
 	el.src = url + "#" + escape(comment);
-	el.style.cssText = 'border: none; height: 22px; width: 20px; padding-right: 10px;';
-	keyElement.parentNode.insertBefore(el, keyElement.nextSibling);
+	el.style.cssText = 'border: none; height: 32px; width: 20px; padding-right: 10px;';
+	var createMenu = document.getElementById('create-menu');
+	createMenu.parentNode.insertBefore(el, createMenu.nextSibling);
 
 })();

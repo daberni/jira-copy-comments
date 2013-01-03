@@ -21,7 +21,6 @@
 	function main() {
 		var keyElement = $('#key-val');
 		var comment = keyElement.text() + ' - ' + $('#summary-val').text().trim();
-		console.log(comment);
 
 		var url = 'http://troii.com/zeroclipboard/ClipboardInterface.html'; // URL pointing to ClipboardInterface.html
 		var el = document.createElement("iframe");

@@ -13,8 +13,7 @@
             ],
             "css": [
                 "css.user.css"
-            ],
-            "run_at": "document_end"
+            ]
         }
     ],
     "web_accessible_resources": [
@@ -22,7 +21,6 @@
         "ic_call_split_black_24px.svg"
     ],
     "permissions": [
-        "clipboardWrite",
-        "webNavigation"
+        "clipboardWrite"
     ]
 }

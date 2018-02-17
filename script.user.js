@@ -7,46 +7,40 @@
     textarea.remove();
 }
 
-function appendIcon(modifyFun, image) {
-    var img = document.createElement("img");
-    img.style.cssText = "position: relative; top: 3px;";
-    img.src = image;
-    img.className = "jira-copy-comments";
+function appendIcon(node, modifyFun, image) {
+    var img = document.createElement("span");
+    img.className = "aui-icon aui-icon-small"
+    img.style.backgroundImage = 'url(' + chrome.extension.getURL(image) + ')';
+    img.style.backgroundSize = "contain";
+    node.appendChild(img);
 
-    var anchor = document.createElement("a");
-    anchor.href = "#";
-    anchor.style.cssText = "padding-top: 9px;";
-    anchor.appendChild(img);
-    anchor.addEventListener('click', function (event) {
-        var issueElement = document.getElementById('key-val');
-        if (!issueElement) {
-            issueElement = document.getElementById('issuekey-val');
-        }
+    node.addEventListener('click', function (event) {
         var message = "";
+
+        var issueElement = document.getElementById('key-val') || document.getElementById('issuekey-val');
         if (issueElement) {
             var key = issueElement.innerText;
-            var message = document.getElementById('summary-val').innerText.trim();
+            var summary = document.getElementById('summary-val').innerText.trim();
 
             if (modifyFun) {
-                message = modifyFun(key, message);
+                message = modifyFun(key, summary);
             } else {
-                message = key + "-" + message;
-            }
-        } else {
-            issueElement = document.getElementsByClassName('issuerow focused')[0];
-            if (issueElement) {
-                var key = issueElement.getElementsByClassName('issuekey')[0].getElementsByTagName('a')[0].innerText;
-                var message = issueElement.getElementsByClassName('summary')[0].getElementsByTagName('a')[0].innerText;
-
-                if (modifyFun) {
-                    message = modifyFun(key, message);
-                } else {
-                    message = key + "-" + message;
-                }
+                message = key + "-" + summary;
             }
         }
 
-        anchor.setAttribute("data-clipboard-text", message);
+        var issueRow = document.getElementsByClassName('issuerow focused')[0];
+        if (issueRow) {
+            var key = issueRow.getElementsByClassName('issuekey')[0].getElementsByTagName('a')[0].innerText;
+            var summary = issueRow.getElementsByClassName('summary')[0].getElementsByTagName('a')[0].innerText;
+
+            if (modifyFun) {
+                message = modifyFun(key, summary);
+            } else {
+                message = key + "-" + summary;
+            }
+        }
+
         if (message) {
             if (document.queryCommandSupported("copy")) {
                 copyToClipboard(message);
@@ -58,29 +52,14 @@ function appendIcon(modifyFun, image) {
         event.preventDefault();
         return false;
     });
-
-    var createMenu = document.getElementById('create-menu');
-    if (createMenu) {
-        var listitem = document.createElement("li");
-        listitem.appendChild(anchor);
-
-        createMenu.parentNode.appendChild(listitem);
-    }
 }
 
-(function setIcons() {
-    var elems = document.getElementsByClassName("jira-copy-comments");
-    for (var i = elems.length - 1; i >= 0; i--) {
-        elems[i].parentNode.parentNode.parentNode.removeChild(elems[i].parentNode.parentNode);
-    };
+function appendTextButton(node) {
+    appendIcon(node, (key, message) => key + " " + message, "ic_assignment_black_24px.svg");
+}
 
-    // Text
-    appendIcon(function (key, message) {
-        return key + " " + message;
-    }, "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAUZJREFUeNqkU71KxEAQ3gPBQiuLvIJ5Ak2eIuns0qU4e4urUuYBBAOmCyKIVd5BiNfZWtsYCyFwYszuZt1v7i9eNlFwYJjdnW8+vpndnSil2H9sz3SYZdmVDtPVNgmC4HyIYAIFdzOXCj6OTtnX4TElwjCkmKYpxf3FMzt4nxPhWVxsCUFwe3GiPl+fVBzHqq5rVVWVKsuSHGucIQcMsKhZO7UgZcsWLw/Mtm0WRZFRquM4hAG2NwMhWtZq932ffMjeHi8J2yfgkgkp6SDP803Sdd3N2rIswgDbI+BcMMnbXtGuAQOsgUAzi2WiKApjsed5hOEmBaLZShtTQK02phYaodnloII1KTDAjrYwqmCoBQymqwAku0qWM5DmIaI3ubpfALvxxy1ojPEa8TjwwuY3s19/n/Eh6eLk/jqd/vEHJ93NtwADAFlI6xErpSp9AAAAAElFTkSuQmCC");
-    
-    // Branch name
-    appendIcon(function (key, message) {
+function appendBranchButton(node) {
+    appendIcon(node, (key, message) => {
         return key + "-" + message.substring(0, 30)
             .replace('ä', 'ae')
             .replace('ö', 'oe')
@@ -88,5 +67,87 @@ function appendIcon(modifyFun, image) {
             .replace('ß', 'sz')
             .replace('&', 'and')
             .replace(/[^\w-]/g, '_');
-    }, "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAALiIAAC4iAari3ZIAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAAPdJREFUOE+NkTEOAUEUhlett+EOGtxAnEKnV5JoVRKdA7iAM+g1iA0JDqBDRYOM7+3ui8nYYb/kk9038/+7ZgMfxpgKbnGNYTrOB4EiHlDZYb4SNsqTa9hHm/8lbJCwPPmCDezgDBV/CQsaVjbpXJRzUL5LGLhh4YZVlPWeDCw+JVxkhZUJtlHOZIAnVJISfuRT+ZCCLp6xjAWcorJy/5+LFgjN9I1HyW1MJIMQ5XWysAuuOMdnfGfMHst6DlklD2xhHe8ysPiEFQZuyRF1bRFPEr7DCgtuyRiH+IrvfoUVNvjO5H9YYaOU2J83f1ghUMIlRv5wELwB97Ju+zgKEekAAAAASUVORK5CYII=");
-})();
+    }, "ic_call_split_black_24px.svg");
+}
+
+let mutationObserver = new MutationObserver(() => {
+    setIcons();
+});
+
+function setIcons() {
+    var elems = document.getElementsByClassName("jira-copy-comments");
+    for (var i = elems.length - 1; i >= 0; i--) {
+        elems[i].remove();
+    };
+
+    var boardTools = document.getElementById('ghx-modes-tools');
+    if (boardTools) {
+        var button = document.createElement("button");
+        button.className = "aui-button ghx-actions-tools jira-copy-comments";
+        appendBranchButton(button);
+        boardTools.insertBefore(button, boardTools.children[0]);
+
+        var button = document.createElement("button");
+        button.className = "aui-button ghx-actions-tools jira-copy-comments";
+        appendTextButton(button);
+        boardTools.insertBefore(button, boardTools.children[0]);
+    }
+
+    var issueContent = document.getElementById("issue-content");
+    var detailTools = (issueContent && issueContent.getElementsByClassName("toolbar-split-right")[0]);
+    if (detailTools) {
+        var list = document.createElement("ul")
+        list.className = "toolbar-group pluggable-ops jira-copy-comments"
+        var item = document.createElement("li");
+        item.className = "toolbar-item";
+        var a = document.createElement("a");
+        a.href = "#";
+        a.className = "toolbar-trigger";
+        appendBranchButton(a);
+        item.appendChild(a);
+        list.appendChild(item);
+        detailTools.insertBefore(list, detailTools.children[0]);
+
+        var group = document.createElement("ul")
+        group.className = "toolbar-group pluggable-ops jira-copy-comments"
+        var button = document.createElement("li");
+        button.className = "toolbar-item";
+        var a = document.createElement("a");
+        a.href = "#";
+        a.className = "toolbar-trigger";
+        appendTextButton(a);
+        button.appendChild(a);
+        group.appendChild(button);
+        detailTools.insertBefore(group, detailTools.children[0]);
+    }
+
+    var content = document.getElementById("content");
+    var listTools = (content && content.getElementsByClassName("operations")[0]);
+    if (listTools) {
+        var item = document.createElement("li");
+        item.className = "pluggable-ops  no-hover-focus-mark jira-copy-comments";
+        var a = document.createElement("a");
+        a.href = "#";
+        a.className = "aui-button";
+        appendBranchButton(a);
+        item.appendChild(a);
+        listTools.insertBefore(item, listTools.children[0]);
+
+        var item = document.createElement("li");
+        item.className = "pluggable-ops  no-hover-focus-mark jira-copy-comments";
+        var a = document.createElement("a");
+        a.href = "#";
+        a.className = "aui-button";
+        appendTextButton(a);
+        item.appendChild(a);
+        listTools.insertBefore(item, listTools.children[0]);
+    }
+
+    mutationObserver.disconnect();
+    mutationObserver.observe(content, {
+        childList: true,
+        subtree: true
+    });
+}
+
+setIcons();

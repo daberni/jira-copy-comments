@@ -1,22 +1,28 @@
 {
     "manifest_version": 2,
     "name": "JIRA copy comment",
-    "version": "0.7.1",
+    "version": "1.0.0",
     "content_scripts": [
         {
             "matches": [
-                "<all_urls>"
+                "http://*.atlassian.net/*",
+                "https://*.atlassian.net/*"
             ],
             "js": [
                 "script.user.js"
             ],
             "css": [
                 "css.user.css"
-            ]
+            ],
+            "run_at": "document_end"
         }
+    ],
+    "web_accessible_resources": [
+        "ic_assignment_black_24px.svg",
+        "ic_call_split_black_24px.svg"
     ],
     "permissions": [
         "clipboardWrite",
-        "clipboardRead"
+        "webNavigation"
     ]
 }

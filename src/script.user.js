@@ -15,33 +15,32 @@ function appendIcon(node, modifyFun, image) {
     node.appendChild(img);
 
     node.addEventListener('click', function (event) {
-        var message = "";
-
         var issueElement = document.getElementById('key-val') || document.getElementById('issuekey-val');
         if (issueElement) {
             var key = issueElement.innerText;
             var summary = document.getElementById('summary-val').innerText.trim();
-
-            if (modifyFun) {
-                message = modifyFun(key, summary);
-            } else {
-                message = key + "-" + summary;
-            }
         }
 
         var issueRow = document.getElementsByClassName('issuerow focused')[0];
         if (issueRow) {
             var key = issueRow.getElementsByClassName('issuekey')[0].getElementsByTagName('a')[0].innerText;
             var summary = issueRow.getElementsByClassName('summary')[0].getElementsByTagName('a')[0].innerText;
+        }
 
+        var issueCard = document.querySelector('.ghx-issue.ghx-selected');
+        if (issueCard) {
+            var key = issueCard.getElementsByClassName('ghx-key')[0].getAttribute('data-tooltip');
+            var summary = issueCard.getElementsByClassName('ghx-summary')[0].innerText;
+        }
+
+        if (key && summary) {
+            var message;
             if (modifyFun) {
                 message = modifyFun(key, summary);
             } else {
                 message = key + "-" + summary;
             }
-        }
 
-        if (message) {
             if (document.queryCommandSupported("copy")) {
                 copyToClipboard(message);
             } else {

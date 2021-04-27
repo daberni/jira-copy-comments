@@ -1,10 +1,47 @@
-﻿function copyToClipboard(message) {
+﻿var textSimpleConcat = (key, message) => key + " " + message;
+
+var textBranchName = (key, message) => {
+    return key + "-" + message.substring(0, 30)
+        .replace('ä', 'ae')
+        .replace('ö', 'oe')
+        .replace('ü', 'ue')
+        .replace('ß', 'sz')
+        .replace('&', 'and')
+        .replace(/[^\w-]/g, '_');
+};
+
+function copyToClipboard(message) {
     var textarea = document.createElement("textarea");
     textarea.textContent = message;
     document.body.appendChild(textarea);
     textarea.select();
     document.execCommand('copy');
     textarea.remove();
+}
+
+function handleClick(key, summary, modifyFun) {
+    if (key && summary) {
+        var message;
+        if (modifyFun) {
+            message = modifyFun(key, summary);
+        } else {
+            message = key + "-" + summary;
+        }
+
+        if (document.queryCommandSupported("copy")) {
+            copyToClipboard(message);
+        } else {
+            alert(message);
+        }
+    }
+}
+
+function appendTextButton(node) {
+    appendIcon(node, textSimpleConcat, "ic_assignment_black_24px.svg");
+}
+
+function appendBranchButton(node) {
+    appendIcon(node, textBranchName, "ic_call_split_black_24px.svg");
 }
 
 function appendIcon(node, modifyFun, image) {
@@ -27,46 +64,43 @@ function appendIcon(node, modifyFun, image) {
             var summary = issueRow.getElementsByClassName('summary')[0].getElementsByTagName('a')[0].innerText;
         }
 
+        var issueBacklog = document.querySelector('.ghx-backlog-card.ghx-selected');
+        if (issueBacklog) {
+            var key = issueBacklog.dataset.issueKey;
+            var summary = issueBacklog.getElementsByClassName('ghx-summary')[0].innerText;
+        }
+
         var issueCard = document.querySelector('.ghx-issue.ghx-selected');
         if (issueCard) {
             var key = issueCard.getElementsByClassName('ghx-key')[0].getAttribute('data-tooltip');
             var summary = issueCard.getElementsByClassName('ghx-summary')[0].innerText;
         }
 
-        if (key && summary) {
-            var message;
-            if (modifyFun) {
-                message = modifyFun(key, summary);
-            } else {
-                message = key + "-" + summary;
-            }
-
-            if (document.queryCommandSupported("copy")) {
-                copyToClipboard(message);
-            } else {
-                alert(message);
-            }
-        }
+        handleClick(key, summary, modifyFun);
 
         event.preventDefault();
         return false;
     });
 }
 
-function appendTextButton(node) {
-    appendIcon(node, (key, message) => key + " " + message, "ic_assignment_black_24px.svg");
-}
+function appendIconNew(node, modifyFun, image) {
+    var button = document.createElement("button");
+    button.innerHTML = '<span><svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><image xlink:href="' + chrome.extension.getURL(image) + '"  height="24" width="24" /></svg></span>';
+    button.addEventListener('click', function () {
+        var issueIdNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]')
+        var issueSummaryNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.summary.heading"]')
 
-function appendBranchButton(node) {
-    appendIcon(node, (key, message) => {
-        return key + "-" + message.substring(0, 30)
-            .replace('ä', 'ae')
-            .replace('ö', 'oe')
-            .replace('ü', 'ue')
-            .replace('ß', 'sz')
-            .replace('&', 'and')
-            .replace(/[^\w-]/g, '_');
-    }, "ic_call_split_black_24px.svg");
+        var key = issueIdNode.innerText;
+        var summary = issueSummaryNode.innerText;
+
+        handleClick(key, summary, modifyFun);
+    });
+
+    var div = document.createElement("div");
+    div.className = "jcc-n-container"
+    div.append(button);
+
+    node.appendChild(div);
 }
 
 let mutationObserver = new MutationObserver(() => {
@@ -78,6 +112,8 @@ function setIcons() {
     for (var i = elems.length - 1; i >= 0; i--) {
         elems[i].remove();
     };
+
+    // Old Issue View
 
     var boardTools = document.getElementById('ghx-modes-tools');
     if (boardTools) {
@@ -143,10 +179,22 @@ function setIcons() {
     }
 
     mutationObserver.disconnect();
-    mutationObserver.observe(content, {
-        childList: true,
-        subtree: true
-    });
+    if (content) {
+        mutationObserver.observe(content, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    // New Issue View
+
+    var issueHeaderActions = document.getElementById("jira-issue-header-actions");
+    if (issueHeaderActions) {
+        var container = document.querySelector("#jira-issue-header-actions > div > div");
+
+        appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
+        appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+    }
 }
 
 setIcons();

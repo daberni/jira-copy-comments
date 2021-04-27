@@ -9,3 +9,81 @@
 .pluggable-ops.jira-copy-comments .aui-button {
 	padding-left: 6px !important;
 }
+
+
+.jcc-n-container {
+	/*
+    flex-shrink: 0;
+    align-items: baseline;
+    border-width: 0;
+    border-radius: 3px;
+    box-sizing: border-box;
+    display: inline-flex;
+    white-space: nowrap;
+    background: none;
+    color: #42526E !important;
+    cursor: pointer;
+    height: 2.2857142857142856em;
+    line-height: 2.2857142857142856em;
+    padding: 0 2px;
+    vertical-align: middle;
+    width: auto;
+    justify-content: center;
+	*/
+}
+
+.jcc-n-container button {
+
+    white-space: nowrap;
+    background: none;
+    color: #42526E !important;
+    cursor: pointer;
+    height: 2.2857142857142856em;
+    line-height: 2.2857142857142856em;
+    padding: 0 2px;
+    vertical-align: middle;
+    width: auto;
+    align-items: baseline;
+    border-width: 0;
+    border-radius: 3px;
+    box-sizing: border-box;
+    display: inline-flex;
+    font-size: inherit;
+    font-style: normal;
+    font-family: inherit;
+    font-weight: 500;
+    max-width: 100%;
+    position: relative;
+    text-align: center;
+
+}
+
+.jcc-n-container button:hover {
+    background: rgba(9,30,66,0.08);
+    color: #42526E !important;
+    text-decoration: inherit;
+
+}
+
+.jcc-n-container button:focus {
+    background: none;
+    color: #42526E !important;
+    box-shadow: 0 0 0 2px #4c9aff;
+    outline: none;
+}
+
+.jcc-n-container button:active {
+    background: rgba(179,212,255,0.6);
+    color: #0052CC !important;
+}
+
+.jcc-n-container button span {
+    display: flex;
+    align-self: center;
+    margin: 0 2px;
+}
+
+
+.jcc-n-container button span svg {
+    fill: currentColor;
+}

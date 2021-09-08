@@ -12,6 +12,7 @@ var textBranchName = (key, message) => {
 
 function copyToClipboard(message) {
     var textarea = document.createElement("textarea");
+    textarea.dataset.type = "jira-copy-comments"
     textarea.textContent = message;
     document.body.appendChild(textarea);
     textarea.select();
@@ -28,11 +29,7 @@ function handleClick(key, summary, modifyFun) {
             message = key + "-" + summary;
         }
 
-        if (document.queryCommandSupported("copy")) {
-            copyToClipboard(message);
-        } else {
-            alert(message);
-        }
+        navigator.clipboard.writeText(message);
     }
 }
 
@@ -85,6 +82,7 @@ function appendIcon(node, modifyFun, image) {
 
 function appendIconNew(node, modifyFun, image) {
     var button = document.createElement("button");
+    button.dataset.type = "jira-copy-comments";
     button.innerHTML = '<span><svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><image xlink:href="' + chrome.extension.getURL(image) + '"  height="24" width="24" /></svg></span>';
     button.addEventListener('click', function () {
         var issueIdNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]')
@@ -97,18 +95,15 @@ function appendIconNew(node, modifyFun, image) {
     });
 
     var div = document.createElement("div");
+    div.dataset.type = "jira-copy-comments";
     div.className = "jcc-n-container"
     div.append(button);
 
     node.appendChild(div);
 }
 
-let mutationObserver = new MutationObserver(() => {
-    setIcons();
-});
-
 function setIcons() {
-    var elems = document.getElementsByClassName("jira-copy-comments");
+    var elems = document.querySelectorAll('[data-type="jira-copy-comments"]');
     for (var i = elems.length - 1; i >= 0; i--) {
         elems[i].remove();
     };
@@ -118,12 +113,14 @@ function setIcons() {
     var boardTools = document.getElementById('ghx-modes-tools');
     if (boardTools) {
         var button = document.createElement("button");
-        button.className = "aui-button ghx-actions-tools jira-copy-comments";
+        button.dataset.type = "jira-copy-comments";
+        button.className = "aui-button ghx-actions-tools";
         appendBranchButton(button);
         boardTools.insertBefore(button, boardTools.children[0]);
 
         var button = document.createElement("button");
-        button.className = "aui-button ghx-actions-tools jira-copy-comments";
+        button.dataset.type = "jira-copy-comments";
+        button.className = "aui-button ghx-actions-tools";
         appendTextButton(button);
         boardTools.insertBefore(button, boardTools.children[0]);
     }
@@ -132,7 +129,8 @@ function setIcons() {
     var detailTools = (issueContent && issueContent.getElementsByClassName("toolbar-split-right")[0]);
     if (detailTools) {
         var list = document.createElement("ul")
-        list.className = "toolbar-group pluggable-ops jira-copy-comments"
+        list.dataset.type = "jira-copy-comments";
+        list.className = "toolbar-group pluggable-ops"
         var item = document.createElement("li");
         item.className = "toolbar-item";
         var a = document.createElement("a");
@@ -144,7 +142,8 @@ function setIcons() {
         detailTools.insertBefore(list, detailTools.children[0]);
 
         var group = document.createElement("ul")
-        group.className = "toolbar-group pluggable-ops jira-copy-comments"
+        group.dataset.type = "jira-copy-comments";
+        group.className = "toolbar-group pluggable-ops"
         var button = document.createElement("li");
         button.className = "toolbar-item";
         var a = document.createElement("a");
@@ -160,7 +159,8 @@ function setIcons() {
     var listTools = (content && content.getElementsByClassName("operations")[0]);
     if (listTools) {
         var item = document.createElement("li");
-        item.className = "pluggable-ops  no-hover-focus-mark jira-copy-comments";
+        item.dataset.type = "jira-copy-comments";
+        item.className = "pluggable-ops  no-hover-focus-mark";
         var a = document.createElement("a");
         a.href = "#";
         a.className = "aui-button";
@@ -169,21 +169,14 @@ function setIcons() {
         listTools.insertBefore(item, listTools.children[0]);
 
         var item = document.createElement("li");
-        item.className = "pluggable-ops  no-hover-focus-mark jira-copy-comments";
+        item.dataset.type = "jira-copy-comments";
+        item.className = "pluggable-ops  no-hover-focus-mark";
         var a = document.createElement("a");
         a.href = "#";
         a.className = "aui-button";
         appendTextButton(a);
         item.appendChild(a);
         listTools.insertBefore(item, listTools.children[0]);
-    }
-
-    mutationObserver.disconnect();
-    if (content) {
-        mutationObserver.observe(content, {
-            childList: true,
-            subtree: true
-        });
     }
 
     // New Issue View
@@ -195,6 +188,26 @@ function setIcons() {
         appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
         appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
     }
+
+    var dialogIssueHeader = document.getElementById('jira-issue-header')
+    if (dialogIssueHeader) {
+        var container = document.querySelector('#jira-issue-header > div > div > div > div > div > div > div + div > div')
+
+        appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
+        appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+    }
 }
+
+let mutationObserver = new MutationObserver((mutations) => {
+    const addedNodes = mutations.flatMap(record => Array.from(record.addedNodes))
+    const found = addedNodes.some(node => node.dataset !== undefined && node.dataset?.type != "jira-copy-comments");
+    if (found) {
+        setIcons();
+    }
+});
+mutationObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+});
 
 setIcons();

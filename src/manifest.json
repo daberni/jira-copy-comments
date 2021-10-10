@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "JIRA copy comment",
     "short_name": "JIRA copy comment",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "icons": {
         "128": "icon-128.png"
     },

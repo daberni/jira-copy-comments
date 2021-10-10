@@ -1,4 +1,4 @@
-﻿var textSimpleConcat = (key, message) => key + " " + message;
+var textSimpleConcat = (key, message) => key + " " + message;
 
 var textBranchName = (key, message) => {
     return key + "-" + message.substring(0, 30)
@@ -184,17 +184,19 @@ function setIcons() {
     var issueHeaderActions = document.getElementById("jira-issue-header-actions");
     if (issueHeaderActions) {
         var container = document.querySelector("#jira-issue-header-actions > div > div");
-
-        appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
-        appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+        if (container) {
+            appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
+            appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+        }
     }
 
     var dialogIssueHeader = document.getElementById('jira-issue-header')
     if (dialogIssueHeader) {
-        var container = document.querySelector('#jira-issue-header > div > div > div > div > div > div > div + div > div')
-
-        appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
-        appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+        var container = dialogIssueHeader.querySelector('#jira-issue-header > div > div > div > div > div > div > div + div > div')
+        if (container) {
+            appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
+            appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+        }
     }
 }
 

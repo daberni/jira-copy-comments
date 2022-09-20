@@ -1,13 +1,26 @@
-var textSimpleConcat = (key, message) => key + " " + message;
+﻿const textSimpleConcat = (key, message) => key + " " + message;
 
-var textBranchName = (key, message) => {
-    return key + "-" + message.substring(0, 30)
+const textBranchName = (key, message) => {
+    const modified = key + "-" + message.substring(0, 30)
         .replace('ä', 'ae')
         .replace('ö', 'oe')
         .replace('ü', 'ue')
         .replace('ß', 'sz')
         .replace('&', 'and')
         .replace(/[^\w-]/g, '_');
+
+    // https://bitbucket.org/branch/create?issueKey=TIMR-5824&issueType=Story&issueSummary=Use+MySQL+for+unit+and+integration+tests
+    const createBranchAnchor = document.querySelector('a[href*="https://bitbucket.org/branch/create"]');
+    if (createBranchAnchor) {
+        const issueType = new URL(createBranchAnchor.href).searchParams.get("issueType");
+        if (issueType == 'Story') {
+            return 'feature/' + modified;
+        } else if (issueType == 'Bug') {
+            return 'bugfix/' + modified;
+        }
+    }
+
+    return modified;
 };
 
 function copyToClipboard(message) {
@@ -20,7 +33,7 @@ function copyToClipboard(message) {
     textarea.remove();
 }
 
-function handleClick(key, summary, modifyFun) {
+async function handleClick(key, summary, modifyFun) {
     if (key && summary) {
         var message;
         if (modifyFun) {
@@ -29,7 +42,11 @@ function handleClick(key, summary, modifyFun) {
             message = key + "-" + summary;
         }
 
-        navigator.clipboard.writeText(message);
+        try {
+            await navigator.clipboard.writeText(message);
+        } catch(e) {
+            console.warn(e)
+        }
     }
 }
 
@@ -44,11 +61,11 @@ function appendBranchButton(node) {
 function appendIcon(node, modifyFun, image) {
     var img = document.createElement("span");
     img.className = "aui-icon aui-icon-small"
-    img.style.backgroundImage = 'url(' + chrome.extension.getURL(image) + ')';
+    img.style.backgroundImage = 'url(' + chrome.runtime.getURL(image) + ')';
     img.style.backgroundSize = "contain";
     node.appendChild(img);
 
-    node.addEventListener('click', function (event) {
+    node.addEventListener('click', async function (event) {
         var issueElement = document.getElementById('key-val') || document.getElementById('issuekey-val');
         if (issueElement) {
             var key = issueElement.innerText;
@@ -73,7 +90,7 @@ function appendIcon(node, modifyFun, image) {
             var summary = issueCard.getElementsByClassName('ghx-summary')[0].innerText;
         }
 
-        handleClick(key, summary, modifyFun);
+        await handleClick(key, summary, modifyFun);
 
         event.preventDefault();
         return false;
@@ -83,15 +100,15 @@ function appendIcon(node, modifyFun, image) {
 function appendIconNew(node, modifyFun, image) {
     var button = document.createElement("button");
     button.dataset.type = "jira-copy-comments";
-    button.innerHTML = '<span><svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><image xlink:href="' + chrome.extension.getURL(image) + '"  height="24" width="24" /></svg></span>';
-    button.addEventListener('click', function () {
+    button.innerHTML = '<span><svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><image xlink:href="' + chrome.runtime.getURL(image) + '"  height="24" width="24" /></svg></span>';
+    button.addEventListener('click', async function () {
         var issueIdNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]')
         var issueSummaryNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.summary.heading"]')
 
         var key = issueIdNode.innerText;
         var summary = issueSummaryNode.innerText;
 
-        handleClick(key, summary, modifyFun);
+        await handleClick(key, summary, modifyFun);
     });
 
     var div = document.createElement("div");
@@ -192,7 +209,7 @@ function setIcons() {
 
     var dialogIssueHeader = document.getElementById('jira-issue-header')
     if (dialogIssueHeader) {
-        var container = dialogIssueHeader.querySelector('#jira-issue-header > div > div > div > div > div > div > div + div > div')
+        var container = dialogIssueHeader.querySelector('#jira-issue-header > div > div > div > div > div > div + div > div')
         if (container) {
             appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
             appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
@@ -207,9 +224,12 @@ let mutationObserver = new MutationObserver((mutations) => {
         setIcons();
     }
 });
-mutationObserver.observe(document.body, {
-    childList: true,
-    subtree: true
-});
 
-setIcons();
+(function() {
+    mutationObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    setIcons();
+ })();

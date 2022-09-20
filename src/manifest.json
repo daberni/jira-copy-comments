@@ -1,28 +1,28 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "JIRA copy comment",
     "short_name": "JIRA copy comment",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "icons": {
         "128": "icon-128.png"
     },
     "content_scripts": [
         {
-            "matches": [
-                "http://*.atlassian.net/*",
-                "https://*.atlassian.net/*"
-            ],
-            "js": [
-                "script.user.js"
-            ],
-            "css": [
-                "css.user.css"
-            ]
+            "matches": ["https://*.atlassian.net/*"],
+            "js": ["script.user.js"],
+            "css": ["css.user.css"]
         }
     ],
     "web_accessible_resources": [
-        "ic_assignment_black_24px.svg",
-        "ic_call_split_black_24px.svg"
+        {
+            "resources": [
+                "ic_assignment_black_24px.svg",
+                "ic_call_split_black_24px.svg"
+            ],
+            "matches": [
+                "https://*.atlassian.net/*"
+            ]
+        }
     ],
     "permissions": [
         "clipboardWrite"

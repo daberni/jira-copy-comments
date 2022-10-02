@@ -23,16 +23,6 @@ const textBranchName = (key, message) => {
     return modified;
 };
 
-function copyToClipboard(message) {
-    var textarea = document.createElement("textarea");
-    textarea.dataset.type = "jira-copy-comments"
-    textarea.textContent = message;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    textarea.remove();
-}
-
 async function handleClick(key, summary, modifyFun) {
     if (key && summary) {
         var message;
@@ -44,10 +34,12 @@ async function handleClick(key, summary, modifyFun) {
 
         try {
             await navigator.clipboard.writeText(message);
+            return true;
         } catch(e) {
-            console.warn(e)
+            console.warn(e);
         }
     }
+    return false;
 }
 
 function appendTextButton(node) {
@@ -59,13 +51,15 @@ function appendBranchButton(node) {
 }
 
 function appendIcon(node, modifyFun, image) {
-    var img = document.createElement("span");
+    let img = document.createElement("span");
     img.className = "aui-icon aui-icon-small"
     img.style.backgroundImage = 'url(' + chrome.runtime.getURL(image) + ')';
     img.style.backgroundSize = "contain";
     node.appendChild(img);
 
     node.addEventListener('click', async function (event) {
+        console.trace("button clicked", img);
+
         var issueElement = document.getElementById('key-val') || document.getElementById('issuekey-val');
         if (issueElement) {
             var key = issueElement.innerText;
@@ -90,7 +84,12 @@ function appendIcon(node, modifyFun, image) {
             var summary = issueCard.getElementsByClassName('ghx-summary')[0].innerText;
         }
 
-        await handleClick(key, summary, modifyFun);
+        let success = await handleClick(key, summary, modifyFun);
+        if (success) {
+            node.classList.remove("error");
+        } else {
+            node.classList.add("error");
+        }
 
         event.preventDefault();
         return false;
@@ -102,13 +101,20 @@ function appendIconNew(node, modifyFun, image) {
     button.dataset.type = "jira-copy-comments";
     button.innerHTML = '<span><svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><image xlink:href="' + chrome.runtime.getURL(image) + '"  height="24" width="24" /></svg></span>';
     button.addEventListener('click', async function () {
+        console.trace("button clicked", button);
+
         var issueIdNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]')
         var issueSummaryNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.summary.heading"]')
 
         var key = issueIdNode.innerText;
         var summary = issueSummaryNode.innerText;
 
-        await handleClick(key, summary, modifyFun);
+        let success = await handleClick(key, summary, modifyFun);
+        if (success) {
+            button.classList.remove("error");
+        } else {
+            button.classList.add("error");
+        }
     });
 
     var div = document.createElement("div");

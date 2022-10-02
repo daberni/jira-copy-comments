@@ -33,7 +33,6 @@
 }
 
 .jcc-n-container button {
-
     white-space: nowrap;
     background: none;
     color: #42526E !important;
@@ -55,7 +54,6 @@
     max-width: 100%;
     position: relative;
     text-align: center;
-
 }
 
 .jcc-n-container button:hover {
@@ -77,13 +75,12 @@
     color: #0052CC !important;
 }
 
+.jcc-n-container button.error {
+    color: darkred !important;
+}
+
 .jcc-n-container button span {
     display: flex;
     align-self: center;
     margin: 0 2px;
-}
-
-
-.jcc-n-container button span svg {
-    fill: currentColor;
 }

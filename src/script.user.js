@@ -215,7 +215,7 @@ function setIcons() {
 
     var dialogIssueHeader = document.getElementById('jira-issue-header')
     if (dialogIssueHeader) {
-        var container = dialogIssueHeader.querySelector('#jira-issue-header > div > div > div > div > div > div + div > div')
+        var container = dialogIssueHeader.querySelector('#jira-issue-header > div > div > div > div > div + div > div')
         if (container) {
             appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
             appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");

@@ -1,5 +1,8 @@
 ﻿const textSimpleConcat = (key, message) => key + " " + message;
 
+const ic_assignment_black_24px = `<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>`;
+const ic_call_split_black_24px = `<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M14 4l2.29 2.29-2.88 2.88 1.42 1.42 2.88-2.88L20 10V4zm-4 0H4v6l2.29-2.29 4.71 4.7V20h2v-8.41l-5.29-5.3z"/></svg>`;
+
 const textBranchName = (key, message) => {
     const modified = key + "-" + message.substring(0, 30)
         .replace('ä', 'ae')
@@ -43,18 +46,17 @@ async function handleClick(key, summary, modifyFun) {
 }
 
 function appendTextButton(node) {
-    appendIcon(node, textSimpleConcat, "ic_assignment_black_24px.svg");
+    appendIcon(node, textSimpleConcat, ic_assignment_black_24px);
 }
 
 function appendBranchButton(node) {
-    appendIcon(node, textBranchName, "ic_call_split_black_24px.svg");
+    appendIcon(node, textBranchName, ic_call_split_black_24px);
 }
 
 function appendIcon(node, modifyFun, image) {
     let img = document.createElement("span");
     img.className = "aui-icon aui-icon-small"
-    img.style.backgroundImage = 'url(' + chrome.runtime.getURL(image) + ')';
-    img.style.backgroundSize = "contain";
+    img.innerHTML = image;
     node.appendChild(img);
 
     node.addEventListener('click', async function (event) {
@@ -99,7 +101,7 @@ function appendIcon(node, modifyFun, image) {
 function appendIconNew(node, modifyFun, image) {
     var button = document.createElement("button");
     button.dataset.type = "jira-copy-comments";
-    button.innerHTML = '<span><svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><image xlink:href="' + chrome.runtime.getURL(image) + '"  height="24" width="24" /></svg></span>';
+    button.innerHTML = '<span>' + image + '</span>';
     button.addEventListener('click', async function () {
         console.trace("button clicked", button);
 
@@ -208,8 +210,8 @@ function setIcons() {
     if (issueHeaderActions) {
         var container = document.querySelector("#jira-issue-header-actions > div > div");
         if (container) {
-            appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
-            appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+            appendIconNew(container, textBranchName, ic_call_split_black_24px);
+            appendIconNew(container, textSimpleConcat, ic_assignment_black_24px);
         }
     }
 
@@ -217,8 +219,8 @@ function setIcons() {
     if (dialogIssueHeader) {
         var container = dialogIssueHeader.querySelector('#jira-issue-header > div > div > div > div > div + div > div')
         if (container) {
-            appendIconNew(container, textBranchName, "ic_call_split_black_24px.svg");
-            appendIconNew(container, textSimpleConcat, "ic_assignment_black_24px.svg");
+            appendIconNew(container, textBranchName, ic_call_split_black_24px);
+            appendIconNew(container, textSimpleConcat, ic_assignment_black_24px);
         }
     }
 }

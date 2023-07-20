@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "JIRA copy comment",
     "short_name": "JIRA copy comment",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "icons": {
         "128": "icon-128.png"
     },
@@ -15,10 +15,6 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": [
-                "ic_assignment_black_24px.svg",
-                "ic_call_split_black_24px.svg"
-            ],
             "matches": [
                 "https://*.atlassian.net/*"
             ]

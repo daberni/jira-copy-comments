@@ -13,13 +13,6 @@
             "css": ["css.user.css"]
         }
     ],
-    "web_accessible_resources": [
-        {
-            "matches": [
-                "https://*.atlassian.net/*"
-            ]
-        }
-    ],
     "permissions": [
         "clipboardWrite"
     ]

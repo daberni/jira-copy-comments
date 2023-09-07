@@ -124,7 +124,7 @@ function appendIconNew(node, modifyFun, image) {
     div.className = "jcc-n-container"
     div.append(button);
 
-    node.appendChild(div);
+    node.insertBefore(div, node.children[0]);
 }
 
 function setIcons() {

@@ -105,8 +105,8 @@ function appendIconNew(node, modifyFun, image) {
     button.addEventListener('click', async function () {
         console.trace("button clicked", button);
 
-        var issueIdNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]')
-        var issueSummaryNode = document.querySelector('[data-test-id="issue.views.issue-base.foundation.summary.heading"]')
+        var issueIdNode = document.querySelector('[data-testid="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]')
+        var issueSummaryNode = document.querySelector('[data-testid="issue.views.issue-base.foundation.summary.heading"]')
 
         var key = issueIdNode.innerText;
         var summary = issueSummaryNode.innerText;

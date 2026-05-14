@@ -45,78 +45,40 @@ async function handleClick(key, summary, modifyFun) {
     return false;
 }
 
-function appendTextButton(node) {
-    appendIcon(node, textSimpleConcat, ic_assignment_black_24px);
+function getCurrentIssue() {
+    var issueIdNode = document.querySelector('[data-testid="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]');
+    var issueSummaryNode = document.querySelector('[data-testid="issue.views.issue-base.foundation.summary.heading"]');
+    if (issueIdNode && issueSummaryNode) {
+        return {
+            key: issueIdNode.innerText.trim(),
+            summary: issueSummaryNode.innerText.trim()
+        };
+    }
+    return null;
 }
 
-function appendBranchButton(node) {
-    appendIcon(node, textBranchName, ic_call_split_black_24px);
+function flashResult(button, success) {
+    var className = success ? "flash-success" : "flash-error";
+    button.classList.remove("flash-success", "flash-error");
+    void button.offsetWidth;
+    button.classList.add(className);
+    window.setTimeout(function () {
+        button.classList.remove(className);
+    }, 650);
 }
 
 function appendIcon(node, modifyFun, image) {
-    let img = document.createElement("span");
-    img.className = "aui-icon aui-icon-small"
-    img.innerHTML = image;
-    node.appendChild(img);
-
-    node.addEventListener('click', async function (event) {
-        console.trace("button clicked", img);
-
-        var issueElement = document.getElementById('key-val') || document.getElementById('issuekey-val');
-        if (issueElement) {
-            var key = issueElement.innerText;
-            var summary = document.getElementById('summary-val').innerText.trim();
-        }
-
-        var issueRow = document.getElementsByClassName('issuerow focused')[0];
-        if (issueRow) {
-            var key = issueRow.getElementsByClassName('issuekey')[0].getElementsByTagName('a')[0].innerText;
-            var summary = issueRow.getElementsByClassName('summary')[0].getElementsByTagName('a')[0].innerText;
-        }
-
-        var issueBacklog = document.querySelector('.ghx-backlog-card.ghx-selected');
-        if (issueBacklog) {
-            var key = issueBacklog.dataset.issueKey;
-            var summary = issueBacklog.getElementsByClassName('ghx-summary')[0].innerText;
-        }
-
-        var issueCard = document.querySelector('.ghx-issue.ghx-selected');
-        if (issueCard) {
-            var key = issueCard.getElementsByClassName('ghx-key')[0].getAttribute('data-tooltip');
-            var summary = issueCard.getElementsByClassName('ghx-summary')[0].innerText;
-        }
-
-        let success = await handleClick(key, summary, modifyFun);
-        if (success) {
-            node.classList.remove("error");
-        } else {
-            node.classList.add("error");
-        }
-
-        event.preventDefault();
-        return false;
-    });
-}
-
-function appendIconNew(node, modifyFun, image) {
     var button = document.createElement("button");
     button.dataset.type = "jira-copy-comments";
     button.innerHTML = '<span>' + image + '</span>';
     button.addEventListener('click', async function () {
-        console.trace("button clicked", button);
-
-        var issueIdNode = document.querySelector('[data-testid="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]')
-        var issueSummaryNode = document.querySelector('[data-testid="issue.views.issue-base.foundation.summary.heading"]')
-
-        var key = issueIdNode.innerText;
-        var summary = issueSummaryNode.innerText;
+        var issue = getCurrentIssue();
+        var key = issue && issue.key;
+        var summary = issue && issue.summary;
 
         let success = await handleClick(key, summary, modifyFun);
-        if (success) {
-            button.classList.remove("error");
-        } else {
-            button.classList.add("error");
-        }
+        button.classList.toggle("error", !success);
+        flashResult(button, success);
     });
 
     var div = document.createElement("div");
@@ -133,94 +95,22 @@ function setIcons() {
         elems[i].remove();
     };
 
-    // Old Issue View
-
-    var boardTools = document.getElementById('ghx-modes-tools');
-    if (boardTools) {
-        var button = document.createElement("button");
-        button.dataset.type = "jira-copy-comments";
-        button.className = "aui-button ghx-actions-tools";
-        appendBranchButton(button);
-        boardTools.insertBefore(button, boardTools.children[0]);
-
-        var button = document.createElement("button");
-        button.dataset.type = "jira-copy-comments";
-        button.className = "aui-button ghx-actions-tools";
-        appendTextButton(button);
-        boardTools.insertBefore(button, boardTools.children[0]);
-    }
-
-    var issueContent = document.getElementById("issue-content");
-    var detailTools = (issueContent && issueContent.getElementsByClassName("toolbar-split-right")[0]);
-    if (detailTools) {
-        var list = document.createElement("ul")
-        list.dataset.type = "jira-copy-comments";
-        list.className = "toolbar-group pluggable-ops"
-        var item = document.createElement("li");
-        item.className = "toolbar-item";
-        var a = document.createElement("a");
-        a.href = "#";
-        a.className = "toolbar-trigger";
-        appendBranchButton(a);
-        item.appendChild(a);
-        list.appendChild(item);
-        detailTools.insertBefore(list, detailTools.children[0]);
-
-        var group = document.createElement("ul")
-        group.dataset.type = "jira-copy-comments";
-        group.className = "toolbar-group pluggable-ops"
-        var button = document.createElement("li");
-        button.className = "toolbar-item";
-        var a = document.createElement("a");
-        a.href = "#";
-        a.className = "toolbar-trigger";
-        appendTextButton(a);
-        button.appendChild(a);
-        group.appendChild(button);
-        detailTools.insertBefore(group, detailTools.children[0]);
-    }
-
-    var content = document.getElementById("content");
-    var listTools = (content && content.getElementsByClassName("operations")[0]);
-    if (listTools) {
-        var item = document.createElement("li");
-        item.dataset.type = "jira-copy-comments";
-        item.className = "pluggable-ops  no-hover-focus-mark";
-        var a = document.createElement("a");
-        a.href = "#";
-        a.className = "aui-button";
-        appendBranchButton(a);
-        item.appendChild(a);
-        listTools.insertBefore(item, listTools.children[0]);
-
-        var item = document.createElement("li");
-        item.dataset.type = "jira-copy-comments";
-        item.className = "pluggable-ops  no-hover-focus-mark";
-        var a = document.createElement("a");
-        a.href = "#";
-        a.className = "aui-button";
-        appendTextButton(a);
-        item.appendChild(a);
-        listTools.insertBefore(item, listTools.children[0]);
-    }
-
-    // New Issue View
-
     var issueHeaderActions = document.getElementById("jira-issue-header-actions");
     if (issueHeaderActions) {
         var container = document.querySelector("#jira-issue-header-actions > div > div");
         if (container) {
-            appendIconNew(container, textBranchName, ic_call_split_black_24px);
-            appendIconNew(container, textSimpleConcat, ic_assignment_black_24px);
+            container.style.gap = "unset"; // remove default gap
+            appendIcon(container, textBranchName, ic_call_split_black_24px);
+            appendIcon(container, textSimpleConcat, ic_assignment_black_24px);
         }
     }
 
-    var dialogIssueHeader = document.getElementById('jira-issue-header')
+    var dialogIssueHeader = document.getElementById("jira-issue-header");
     if (dialogIssueHeader) {
-        var container = dialogIssueHeader.querySelector('#jira-issue-header > div > div > div > div > div + div > div')
+        var container = dialogIssueHeader.querySelector("#jira-issue-header > div > div > div > div > div + div > div");
         if (container) {
-            appendIconNew(container, textBranchName, ic_call_split_black_24px);
-            appendIconNew(container, textSimpleConcat, ic_assignment_black_24px);
+            appendIcon(container, textBranchName, ic_call_split_black_24px);
+            appendIcon(container, textSimpleConcat, ic_assignment_black_24px);
         }
     }
 }

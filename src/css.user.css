@@ -1,89 +1,59 @@
-/* Board Side */
-
-[data-type="jira-copy-comments"].ghx-actions-tools {
-	margin-left: 0 !important;
-	margin-right: 10px;
-    padding: 4px;
-	cursor: pointer;
-}
-
-[data-type="jira-copy-comments"].pluggable-ops .aui-button {
-	padding-left: 6px !important;
-}
-
-[data-type="jira-copy-comments"] .aui-icon {
-    display: flex;
-	height: inherit;
-    width: 20px;
-    align-self: center;
-    margin: 0 2px;
-}
-
-
 .jcc-n-container {
-	/*
-    flex-shrink: 0;
-    align-items: baseline;
-    border-width: 0;
-    border-radius: 3px;
-    box-sizing: border-box;
     display: inline-flex;
-    white-space: nowrap;
-    background: none;
-    color: #42526E !important;
-    cursor: pointer;
-    height: 2.2857142857142856em;
-    line-height: 2.2857142857142856em;
-    padding: 0 2px;
-    vertical-align: middle;
-    width: auto;
-    justify-content: center;
-	*/
+    align-items: center;
+    flex-shrink: 0;
+    margin-inline-end: 2px;
 }
 
 .jcc-n-container button {
-    -webkit-box-align: baseline;
-    align-items: baseline;
-    border-width: 0px;
-    border-radius: 3px;
+    align-items: center;
+    border: 1px solid var(--ds-border, rgba(9, 30, 66, 0.14));
+    border-radius: var(--ds-border-radius-100, 3px);
     box-sizing: border-box;
     display: inline-flex;
-    font-size: inherit;
+    font-size: var(--ds-font-body-small, 14px);
     font-style: normal;
-    font-family: inherit;
+    font-family: var(--ds-font-family-body, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
     font-weight: 500;
-    max-width: 100%;
     position: relative;
-    text-align: center;
-    text-decoration: none;
-    transition: background 0.1s ease-out 0s, box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38) 0s;
+    transition: background-color 0.1s ease-out, color 0.1s ease-out;
     white-space: nowrap;
-    background: var(--ds-background-neutral-subtle, none);
+    background-color: transparent;
     cursor: pointer;
-    height: 2.28571em;
-    line-height: 2.28571em;
-    padding: 0px 2px;
-    vertical-align: middle;
-    width: auto;
-    -webkit-box-pack: center;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 4px;
     justify-content: center;
+    line-height: 1;
+    overflow: visible;
     color: var(--ds-text, #42526E) !important;
 }
 
+.jcc-n-container button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .jcc-n-container button:hover {
-    background: var(--ds-background-neutral-subtle-hovered, rgba(9, 30, 66, 0.08));
-    text-decoration: inherit;
-    transition-duration: 0s, 0.15s;
+    background-color: var(--ds-background-neutral-subtle-hovered, rgba(9, 30, 66, 0.08));
     color: var(--ds-text, #42526E) !important;
 }
 
 .jcc-n-container button:focus {
-    outline: none !important;
+    outline: none;
+}
+
+.jcc-n-container button:focus-visible {
+    outline: 2px solid var(--ds-border-focused, #388BFF);
+    outline-offset: 2px;
 }
 
 .jcc-n-container button:active {
-    background: var(--ds-background-neutral-subtle-pressed, rgba(179, 212, 255, 0.6));
-    transition-duration: 0s, 0s;
+    background-color: var(--ds-background-neutral-subtle-pressed, rgba(179, 212, 255, 0.6));
     color: var(--ds-text, #0052CC) !important;
 }
 
@@ -91,8 +61,75 @@
     color: darkred !important;
 }
 
+.jcc-n-container button.flash-success {
+    animation: jccPulse 0.65s ease-out;
+}
+
+.jcc-n-container button.flash-error {
+    animation: jccPulse 0.65s ease-out;
+}
+
+.jcc-n-container button.flash-success::after {
+    animation: jccFlashSuccessOverlay 0.65s ease-out;
+}
+
+.jcc-n-container button.flash-error::after {
+    animation: jccFlashErrorOverlay 0.65s ease-out;
+}
+
+@keyframes jccPulse {
+    0% {
+        transform: scale(1);
+    }
+    35% {
+        transform: scale(1.03);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes jccFlashSuccessOverlay {
+    0% {
+        opacity: 0;
+        box-shadow: 0 0 0 0 rgba(34, 154, 88, 0);
+        background-color: rgba(34, 154, 88, 0);
+    }
+    30% {
+        opacity: 1;
+        box-shadow: 0 0 0 5px rgba(34, 154, 88, 0.24);
+        background-color: rgba(34, 154, 88, 0.16);
+    }
+    100% {
+        opacity: 0;
+        box-shadow: 0 0 0 0 rgba(34, 154, 88, 0);
+        background-color: rgba(34, 154, 88, 0);
+    }
+}
+
+@keyframes jccFlashErrorOverlay {
+    0% {
+        opacity: 0;
+        box-shadow: 0 0 0 0 rgba(196, 30, 58, 0);
+        background-color: rgba(196, 30, 58, 0);
+    }
+    30% {
+        opacity: 1;
+        box-shadow: 0 0 0 5px rgba(196, 30, 58, 0.24);
+        background-color: rgba(196, 30, 58, 0.16);
+    }
+    100% {
+        opacity: 0;
+        box-shadow: 0 0 0 0 rgba(196, 30, 58, 0);
+        background-color: rgba(196, 30, 58, 0);
+    }
+}
+
 .jcc-n-container button span {
     display: flex;
-    align-self: center;
-    margin: 0 2px;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin: 0;
 }

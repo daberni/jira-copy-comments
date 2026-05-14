@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jira Clipboard Helper - Smoke Harness</title>
+  <link rel="stylesheet" href="../src/css.user.css" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #1f1f24;
+      color: #f3f4f6;
+    }
+    .panel {
+      border: 1px solid #3b3b45;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      background: #26262d;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+    }
+    .action-slot {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px;
+      border: 1px dashed #4f4f5a;
+      border-radius: 6px;
+      min-height: 44px;
+    }
+    #results {
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      line-height: 1.35;
+      background: #111317;
+      border: 1px solid #2e3340;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .badge {
+      border: 1px solid #4f4f5a;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: #d1d5db;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jira Clipboard Helper Smoke Harness</h1>
+
+  <div class="panel">
+    <div class="row">
+      <span class="badge">Issue Key</span>
+      <div data-testid="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container">TIMR-5824</div>
+    </div>
+    <div class="row" style="margin-top: 8px;">
+      <span class="badge">Summary</span>
+      <div data-testid="issue.views.issue-base.foundation.summary.heading">Use MySQL for unit and integration tests</div>
+    </div>
+    <a href="https://bitbucket.org/branch/create?issueKey=TIMR-5824&issueType=Story&issueSummary=Use+MySQL+for+unit+and+integration+tests" style="display:none">branch helper</a>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Main Issue Header</h2>
+    <div id="jira-issue-header-actions">
+      <div>
+        <div class="action-slot" id="main-action-slot">
+          <button type="button">Native A</button>
+          <button type="button">Native B</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Dialog Header</h2>
+    <div id="jira-issue-header">
+      <div>
+        <div>
+          <div>
+            <div>
+              <div></div>
+              <div>
+                <div class="action-slot" id="dialog-action-slot">
+                  <button type="button">Dialog Native</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Smoke Results</h2>
+    <div id="results">Running...</div>
+  </div>
+
+  <script>
+    window.__clipboardWrites = [];
+    window.__clipboardStubActive = false;
+
+    function installClipboardStub() {
+      try {
+        if (!navigator.clipboard) {
+          Object.defineProperty(navigator, "clipboard", {
+            value: {},
+            configurable: true
+          });
+        }
+
+        const stub = async function (text) {
+          window.__clipboardWrites.push(text);
+          return Promise.resolve();
+        };
+
+        try {
+          navigator.clipboard.writeText = stub;
+        } catch (_err) {
+          Object.defineProperty(navigator.clipboard, "writeText", {
+            value: stub,
+            configurable: true
+          });
+        }
+
+        window.__clipboardStubActive = true;
+      } catch (_err) {
+        window.__clipboardStubActive = false;
+      }
+    }
+
+    installClipboardStub();
+  </script>
+  <script src="../src/script.user.js"></script>
+  <script src="./smoke-test.js"></script>
+</body>
+</html>

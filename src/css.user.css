@@ -52,11 +52,6 @@
     outline-offset: 2px;
 }
 
-.jcc-n-container button:active {
-    background-color: var(--ds-background-neutral-subtle-pressed, rgba(179, 212, 255, 0.6));
-    color: var(--ds-text, #0052CC) !important;
-}
-
 .jcc-n-container button.error {
     color: darkred !important;
 }

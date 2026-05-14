@@ -1,6 +1,7 @@
-const EXTENSION_TYPE = "jira-copy-comments";
+﻿const EXTENSION_TYPE = "jira-copy-comments";
 const FLASH_CLASS_SUCCESS = "flash-success";
 const FLASH_CLASS_ERROR = "flash-error";
+const TOAST_CLASS = "jcc-toast";
 
 const SELECTORS = {
     issueKey: '[data-testid="issue.views.issue-base.foundation.breadcrumbs.breadcrumb-current-issue-container"]',
@@ -18,12 +19,14 @@ const ACTIONS = [
     {
         id: "copy-text",
         icon: ICON_COPY,
-        format: (key, summary) => key + " " + summary
+        format: (key, summary) => key + " " + summary,
+        toastPrefix: "Copied: "
     },
     {
         id: "copy-branch",
         icon: ICON_BRANCH,
-        format: formatBranchName
+        format: formatBranchName,
+        toastPrefix: "Copied branch: "
     }
 ];
 
@@ -51,13 +54,13 @@ function getBranchPrefixFromPage() {
         return getBranchPrefixForIssueType(issueTypeFromBitbucketLink);
     }
 
-    return null;
+    return "";
 }
 
 function getIssueTypeFromBitbucketLink() {
     const createBranchAnchor = document.querySelector(SELECTORS.bitbucketCreateBranch);
     if (!createBranchAnchor) {
-        return null;
+        return "";
     }
 
     return new URL(createBranchAnchor.href).searchParams.get("issueType");
@@ -66,16 +69,11 @@ function getIssueTypeFromBitbucketLink() {
 function getIssueTypeFromIssueTypeButton() {
     const issueTypeButton = document.querySelector(SELECTORS.issueTypeButton);
     if (!issueTypeButton) {
-        return null;
+        return "";
     }
 
     const ariaLabel = issueTypeButton.getAttribute("aria-label") || "";
-    if (!ariaLabel) {
-        return null;
-    }
-
-    const issueType = ariaLabel.split(" - ")[0].trim();
-    return issueType;
+    return ariaLabel.split(" - ")[0].trim();
 }
 
 function getBranchPrefixForIssueType(issueType) {
@@ -101,17 +99,13 @@ function getCurrentIssue() {
 }
 
 async function copyToClipboard(key, summary, formatter) {
-    if (!key || !summary) {
-        return false;
-    }
-
-    const message = formatter ? formatter(key, summary) : key + "-" + summary;
+    const message = formatter(key, summary);
     try {
         await navigator.clipboard.writeText(message);
-        return true;
+        return { success: true, message };
     } catch (error) {
         console.warn(error);
-        return false;
+        return { success: false, message: null };
     }
 }
 
@@ -125,6 +119,33 @@ function flashResult(button, success) {
     }, 650);
 }
 
+function showToast(text, isError) {
+    const existing = document.querySelector("." + TOAST_CLASS);
+    if (existing) {
+        existing.remove();
+    }
+
+    const toast = document.createElement("div");
+    toast.className = TOAST_CLASS + (isError ? " is-error" : "");
+    toast.innerText = text;
+    document.body.append(toast);
+
+    window.requestAnimationFrame(() => {
+        toast.classList.add("is-visible");
+    });
+
+    window.setTimeout(() => {
+        toast.classList.remove("is-visible");
+        window.setTimeout(() => toast.remove(), 180);
+    }, 1900);
+}
+
+function formatToastPreview(action, message) {
+    const label = action.toastPrefix;
+    const preview = message.length > 72 ? message.substring(0, 72) + "..." : message;
+    return label + preview;
+}
+
 function createActionButton(action) {
     const button = document.createElement("button");
     button.dataset.type = EXTENSION_TYPE;
@@ -132,9 +153,21 @@ function createActionButton(action) {
     button.innerHTML = "<span>" + action.icon + "</span>";
     button.addEventListener("click", async () => {
         const issue = getCurrentIssue();
-        const success = await copyToClipboard(issue && issue.key, issue && issue.summary, action.format);
-        button.classList.toggle("error", !success);
-        flashResult(button, success);
+        if (!issue) {
+            button.classList.add("error");
+            flashResult(button, false);
+            showToast("Copy failed. Please try again.", true);
+            return;
+        }
+
+        const result = await copyToClipboard(issue.key, issue.summary, action.format);
+        button.classList.toggle("error", !result.success);
+        flashResult(button, result.success);
+        if (result.success) {
+            showToast(formatToastPreview(action, result.message), false);
+        } else {
+            showToast("Copy failed. Please try again.", true);
+        }
     });
     return button;
 }

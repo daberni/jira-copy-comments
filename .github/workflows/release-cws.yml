@@ -6,14 +6,17 @@ on:
       publish:
         description: "Publish after upload"
         required: true
-        default: "true"
+        default: "false"
         type: choice
         options:
           - "true"
           - "false"
+  push:
+    tags:
+      - "*"
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
 
 jobs:
@@ -27,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Validate required secrets
         shell: bash
@@ -49,20 +52,14 @@ jobs:
           token_format: access_token
           access_token_scopes: https://www.googleapis.com/auth/chromewebstore
 
-      - name: Build extension zip from src/
+      - name: Build extension zip
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="$(jq -r '.version' src/manifest.json)"
-          ZIP_NAME="jira-clipboard-helper-${VERSION}.zip"
+          ./scripts/build-target.sh chrome
 
-          mkdir -p dist
-          rm -f "dist/${ZIP_NAME}"
-
-          (
-            cd src
-            zip -r "../dist/${ZIP_NAME}" .
-          )
+          VERSION="$(jq -r '.version' targets/chrome/manifest.json)"
+          ZIP_NAME="jira-clipboard-helper-chrome-${VERSION}.zip"
 
           echo "ZIP_NAME=${ZIP_NAME}" >> "$GITHUB_ENV"
           echo "Created dist/${ZIP_NAME}"
@@ -84,8 +81,15 @@ jobs:
             exit 1
           fi
 
+      - name: Upload Chrome artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: chrome-addon-${{ env.ZIP_NAME }}
+          path: dist/${{ env.ZIP_NAME }}
+          if-no-files-found: error
+
       - name: Publish item
-        if: ${{ github.event.inputs.publish == 'true' }}
+        if: ${{ github.event_name == 'push' || github.event.inputs.publish == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -94,28 +98,6 @@ jobs:
             "https://chromewebstore.googleapis.com/v2/publishers/${PUBLISHER_ID}/items/${EXTENSION_ID}:publish")"
 
           echo "$PUBLISH_RESPONSE" | jq .
-
-      - name: Create and push git tag
-        if: ${{ github.event.inputs.publish == 'true' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          TAG="$(jq -r '.version' src/manifest.json)"
-
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag ${TAG} already exists locally"
-            exit 1
-          fi
-
-          if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q "refs/tags/${TAG}"; then
-            echo "Tag ${TAG} already exists on origin"
-            exit 1
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG" -m "Release ${TAG}"
-          git push origin "$TAG"
 
       - name: Fetch item status
         shell: bash

@@ -1,5 +1,8 @@
 # Jira Clipboard Helper
 
+[![Available in the Chrome Web Store](https://developer.chrome.com/static/docs/webstore/branding/image/tbyBjqi7Zu733AAKA5n4.png)](https://chromewebstore.google.com/detail/gghpgmofodogbjamjpglpbjjlhcjajhf)
+[![Firefox Add-on](https://img.shields.io/badge/Firefox-Add--on-FF7139?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/jira-clipboard-helper/)
+
 Chrome extension that adds quick copy buttons to Jira so you can copy issue key + summary and branch-friendly names in one click.
 
 ## What It Does
@@ -44,20 +47,48 @@ No Jira API token is required.
 
 ## Development
 
-This project is intentionally lightweight (no build step).
+This project is intentionally lightweight.
 
 Source layout:
 
-- `src/manifest.json` – extension manifest (MV3)
-- `src/script.user.js` – content script logic
-- `src/css.user.css` – injected styles
+- `src/` – shared extension source files (content script, css, locales, icons)
+- `targets/chrome/manifest.json` – Chrome Web Store manifest
+- `targets/firefox/manifest.json` – Firefox manifest
 
-To test locally:
+Build Chrome dist locally:
+
+```bash
+./scripts/build-target.sh chrome
+```
+
+Load Chrome dist locally:
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
-4. Select the `src` directory
+4. Select `dist/chrome`
+
+## Firefox
+
+Firefox support uses the same source files with a Firefox-specific manifest.
+
+Build Firefox package locally:
+
+```bash
+./scripts/build-target.sh firefox
+```
+
+Output:
+
+- `dist/jira-clipboard-helper-firefox-<version>.zip`
+
+Automated signing/release is available via GitHub Actions workflow `Release Firefox Add-on`.
+
+Load locally in Firefox:
+
+1. Open `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on**
+3. Select `dist/firefox/manifest.json`
 
 ## Changelog Notes
 

@@ -1,0 +1,87 @@
+name: Release Firefox Add-on
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Sign/publish to AMO"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: read
+
+jobs:
+  release-firefox:
+    runs-on: ubuntu-latest
+    env:
+      AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+      AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          for var in AMO_JWT_ISSUER AMO_JWT_SECRET; do
+            if [ -z "${!var:-}" ]; then
+              echo "Missing required secret: $var"
+              exit 1
+            fi
+          done
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Build Firefox package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./scripts/build-target.sh firefox
+
+          VERSION="$(jq -r '.version' targets/firefox/manifest.json)"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Install web-ext
+        if: ${{ github.event_name == 'push' || github.event.inputs.publish == 'true' }}
+        shell: bash
+        run: npm install --no-save web-ext
+
+      - name: Sign with AMO
+        if: ${{ github.event_name == 'push' || github.event.inputs.publish == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx web-ext sign \
+            --source-dir dist/firefox \
+            --artifacts-dir dist/firefox-signed \
+            --api-key "$AMO_JWT_ISSUER" \
+            --api-secret "$AMO_JWT_SECRET"
+
+      - name: Upload signed artifact
+        if: ${{ github.event_name == 'push' || github.event.inputs.publish == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: firefox-signed-addon-${{ env.VERSION }}
+          path: dist/firefox-signed/*
+          if-no-files-found: error
+
+      - name: Upload unsigned artifact
+        if: ${{ github.event_name != 'push' && github.event.inputs.publish != 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: firefox-unsigned-addon-${{ env.VERSION }}
+          path: dist/jira-clipboard-helper-firefox-${{ env.VERSION }}.zip
+          if-no-files-found: error

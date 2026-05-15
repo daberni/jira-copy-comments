@@ -124,6 +124,5 @@ jobs:
           set -euo pipefail
           STATUS_RESPONSE="$(curl -sS \
             -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
-            "https://chromewebstore.googleapis.com/v2/publishers/${PUBLISHER_ID}/items/${EXTENSION_ID}")"
-
+            "https://chromewebstore.googleapis.com/v2/publishers/${PUBLISHER_ID}/items/${EXTENSION_ID}:fetchStatus")"
           echo "$STATUS_RESPONSE" | jq .

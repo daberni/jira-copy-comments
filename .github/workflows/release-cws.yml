@@ -12,6 +12,9 @@ on:
           - "true"
           - "false"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 permissions:
   contents: write
   id-token: write
@@ -79,7 +82,7 @@ jobs:
           echo "$UPLOAD_RESPONSE" | jq .
 
           UPLOAD_STATE="$(echo "$UPLOAD_RESPONSE" | jq -r '.uploadState // empty')"
-          if [ "$UPLOAD_STATE" != "SUCCESS" ]; then
+          if [ "$UPLOAD_STATE" != "SUCCEEDED" ]; then
             echo "Upload did not succeed"
             exit 1
           fi

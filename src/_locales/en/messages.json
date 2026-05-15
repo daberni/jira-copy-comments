@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Jira Clipboard Helper"
+  },
+  "appShortName": {
+    "message": "Jira Clipboard Helper"
+  },
+  "appDescription": {
+    "message": "Copy Jira issue text and branch-ready names to your clipboard in one click."
+  }
+}

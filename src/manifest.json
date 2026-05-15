@@ -1,27 +1,27 @@
 {
-    "manifest_version": 3,
-    "name": "Jira Clipboard Helper",
-    "short_name": "Jira Clipboard Helper",
-    "description": "Copy Jira issue text and branch-ready names to your clipboard in one click.",
-    "default_locale": "en",
-    "version": "2.0.0",
-    "icons": {
-        "128": "icon-128.png"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "https://*.atlassian.net/*"
-            ],
-            "js": [
-                "script.user.js"
-            ],
-            "css": [
-                "css.user.css"
-            ]
-        }
-    ],
-    "permissions": [
-        "clipboardWrite"
-    ]
+  "manifest_version": 3,
+  "name": "__MSG_appName__",
+  "short_name": "__MSG_appShortName__",
+  "description": "__MSG_appDescription__",
+  "default_locale": "en",
+  "version": "2.0.0",
+  "icons": {
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.atlassian.net/*"
+      ],
+      "js": [
+        "script.user.js"
+      ],
+      "css": [
+        "css.user.css"
+      ]
+    }
+  ],
+  "permissions": [
+    "clipboardWrite"
+  ]
 }

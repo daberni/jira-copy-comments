@@ -1,7 +1,7 @@
 # Jira Clipboard Helper
 
-[![Available in the Chrome Web Store](https://developer.chrome.com/static/docs/webstore/branding/image/tbyBjqi7Zu733AAKA5n4.png)](https://chromewebstore.google.com/detail/gghpgmofodogbjamjpglpbjjlhcjajhf)
-[![Firefox Add-on](https://img.shields.io/badge/Firefox-Add--on-FF7139?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/jira-clipboard-helper/)
+<a href="https://chromewebstore.google.com/detail/gghpgmofodogbjamjpglpbjjlhcjajhf"><img src="docs/chrome-web-store-badge-rounded.png" alt="Available in the Chrome Web Store" height="58"></a>
+<a href="https://addons.mozilla.org/en-US/firefox/addon/jira-clipboard-helper/"><img src="docs/get-the-addon-firefox.svg" alt="Get the add-on for Firefox" height="58"></a>
 
 Chrome extension that adds quick copy buttons to Jira so you can copy issue key + summary and branch-friendly names in one click.
 

@@ -100,8 +100,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="$(jq -r '.version' src/manifest.json)"
-          TAG="v${VERSION}"
+          TAG="$(jq -r '.version' src/manifest.json)"
 
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag ${TAG} already exists locally"
